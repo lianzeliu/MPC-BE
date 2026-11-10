@@ -30,13 +30,13 @@ jobs:
         run: call update_gcc.bat
         shell: cmd
 
-      - name: Build mpc-be64.exe
-        run: .\build.bat Build x64 Main
+      - name: Build portable package
+        run: .\build.bat Build x64 Packages
         shell: cmd
 
-      - name: Upload mpc-be64.exe
+      - name: Upload portable package
         uses: actions/upload-artifact@v4
         with:
-          name: mpc-be64
-          path: _bin\mpc-be_x64\mpc-be64.exe
+          name: mpc-be64-portable
+          path: _bin\Packages\**\MPC-BE*.x64.7z
           if-no-files-found: error
