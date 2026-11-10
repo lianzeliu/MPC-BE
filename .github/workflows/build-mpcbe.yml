@@ -2,7 +2,7 @@ name: Build MPC-BE x64 (portable renderers)
 
 on:
   push:
-    branches: [portable-renderers]
+    branches: [master]
   workflow_dispatch:
 
 jobs:
