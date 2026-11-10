@@ -50,8 +50,10 @@ static HRESULT IsRendererAvailable(int VideoRendererType)
 			HRESULT hr = CheckFilterCLSID(CLSID_madVR);
 			return (hr == S_OK || !GetMadVRPath().IsEmpty()) ? S_OK : hr;
 		}
-		case VIDRNDT_FRANKY:
-			return CheckFilterCLSID(CLSID_FrankyRenderer);
+		case VIDRNDT_FRANKY: {
+			HRESULT hr = CheckFilterCLSID(CLSID_FrankyRenderer);
+			return (hr == S_OK || !GetFrankyRendererPath().IsEmpty()) ? S_OK : hr;
+		}
 		default:
 		return S_OK;
 	}

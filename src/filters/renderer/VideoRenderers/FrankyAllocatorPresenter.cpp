@@ -208,6 +208,13 @@ STDMETHODIMP CFrankyAllocatorPresenter::CreateRenderer(IUnknown** ppRenderer)
 
 	HRESULT hr = m_pFrankyRenderer.CoCreateInstance(CLSID_FrankyRenderer, GetOwner());
 	if (FAILED(hr)) {
+		// FrankyRenderer is not registered: try the copy bundled next to the
+		// player (FrankyRenderer\FrankyRenderer.ax), like the bundled madVR /
+		// MPC VR. LoadExternalObjectEx resolves the renderer's own DLLs from
+		// its folder (LOAD_WITH_ALTERED_SEARCH_PATH).
+		hr = LoadExternalObjectEx(GetFrankyRendererPath(), CLSID_FrankyRenderer, __uuidof(IUnknown), (void**)&m_pFrankyRenderer);
+	}
+	if (FAILED(hr)) {
 		return hr;
 	}
 

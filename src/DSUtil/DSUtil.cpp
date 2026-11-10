@@ -1434,6 +1434,11 @@ CStringW GetMadVRPath()
 #endif
 }
 
+CStringW GetFrankyRendererPath()
+{
+	return FindBundledFile(L"FrankyRenderer\\", L"FrankyRenderer.ax");
+}
+
 bool IsRendererBundled(const CLSID& clsid)
 {
 	if (clsid == CLSID_MPCVR) {
@@ -1441,6 +1446,9 @@ bool IsRendererBundled(const CLSID& clsid)
 	}
 	if (clsid == CLSID_madVR) {
 		return !GetMadVRPath().IsEmpty();
+	}
+	if (clsid == CLSID_FrankyRenderer) {
+		return !GetFrankyRendererPath().IsEmpty();
 	}
 	return false;
 }

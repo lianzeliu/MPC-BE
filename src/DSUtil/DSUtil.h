@@ -104,10 +104,11 @@ extern CStringW			GetFriendlyName(CStringW DisplayName);
 extern HRESULT			LoadExternalObject(LPCWSTR path, REFCLSID clsid, REFIID iid, void** ppv);
 extern HRESULT			LoadExternalObjectEx(LPCWSTR path, REFCLSID clsid, REFIID iid, void** ppv);
 extern HRESULT			LoadExternalFilter(LPCWSTR path, REFCLSID clsid, IBaseFilter** ppBF);
-// Paths of MPC Video Renderer / madVR bundled next to the player, usable
+// Paths of MPC Video Renderer / madVR / FrankyRenderer bundled next to the player, usable
 // without COM registration. Empty when not found.
 extern CStringW			GetMPCVRPath();
 extern CStringW			GetMadVRPath();
+extern CStringW			GetFrankyRendererPath();
 extern bool				IsRendererBundled(const CLSID& clsid);
 extern HRESULT			LoadExternalPropertyPage(IPersist* pP, REFCLSID clsid, IPropertyPage** ppPP);
 extern void				UnloadExternalObjects();
