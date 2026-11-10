@@ -601,7 +601,7 @@ void CPPageVideo::OnVideoRenderPropClick()
 				path = GetMadVRPath();
 			}
 			if (!path.IsEmpty()) {
-				LoadExternalFilter(path, clsid, &pBF);
+				LoadExternalObjectEx(path, clsid, __uuidof(IBaseFilter), (void**)&pBF);
 			}
 		}
 		pSPP = pBF;

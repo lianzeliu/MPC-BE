@@ -153,7 +153,7 @@ STDMETHODIMP CmadVRAllocatorPresenter::CreateRenderer(IUnknown** ppRenderer)
 	if (FAILED(hr)) {
 		// madVR is not registered: try the copy bundled next to the player
 		// (MADVR\madVR64.ax), like the bundled LAV Filters.
-		hr = LoadExternalObject(GetMadVRPath(), CLSID_madVR, __uuidof(IUnknown), (void**)&m_pMVR);
+		hr = LoadExternalObjectEx(GetMadVRPath(), CLSID_madVR, __uuidof(IUnknown), (void**)&m_pMVR);
 	}
 	if (FAILED(hr)) {
 		return hr;

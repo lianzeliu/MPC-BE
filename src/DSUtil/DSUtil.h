@@ -102,6 +102,7 @@ extern REFERENCE_TIME		StringToReftime2(LPCWSTR strVal);
 
 extern CStringW			GetFriendlyName(CStringW DisplayName);
 extern HRESULT			LoadExternalObject(LPCWSTR path, REFCLSID clsid, REFIID iid, void** ppv);
+extern HRESULT			LoadExternalObjectEx(LPCWSTR path, REFCLSID clsid, REFIID iid, void** ppv);
 extern HRESULT			LoadExternalFilter(LPCWSTR path, REFCLSID clsid, IBaseFilter** ppBF);
 // Paths of MPC Video Renderer / madVR bundled next to the player, usable
 // without COM registration. Empty when not found.

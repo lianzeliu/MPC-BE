@@ -1340,6 +1340,60 @@ HRESULT LoadExternalObject(LPCWSTR path, REFCLSID clsid, REFIID iid, void** ppv)
 	return hr;
 }
 
+// Loads a COM object from a DLL file without registration, like LoadExternalObject,
+// but resolves the DLL's own dependencies from the DLL's folder
+// (LOAD_WITH_ALTERED_SEARCH_PATH). Needed for renderers whose .ax has companion
+// DLLs in the same folder (madVR: madHcNet64.dll, mvrSettings64.dll).
+// Always creates the object through IClassFactory, so the requested interface
+// is the real object, never the class factory itself.
+HRESULT LoadExternalObjectEx(LPCWSTR path, REFCLSID clsid, REFIID iid, void** ppv)
+{
+	CheckPointer(ppv, E_POINTER);
+
+	CStringW fullpath = MakeFullPath(path);
+
+	HINSTANCE hInst = nullptr;
+	bool fFound = false;
+
+	for (const auto& eo : s_extobjs) {
+		if (!eo.path.CompareNoCase(fullpath)) {
+			hInst = eo.hInst;
+			fFound = true;
+			break;
+		}
+	}
+
+	HRESULT hr = E_FAIL;
+
+	if (!hInst) {
+		hInst = LoadLibraryExW(fullpath, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+	}
+	if (hInst) {
+		typedef HRESULT (__stdcall * PDllGetClassObject)(REFCLSID rclsid, REFIID riid, LPVOID* ppv);
+		PDllGetClassObject p = (PDllGetClassObject)GetProcAddress(hInst, "DllGetClassObject");
+
+		CComPtr<IClassFactory> pCF;
+		if (p && SUCCEEDED(hr = p(clsid, __uuidof(IClassFactory), (void**)&pCF))) {
+			hr = pCF->CreateInstance(nullptr, iid, ppv);
+		}
+	}
+
+	if (FAILED(hr) && hInst && !fFound) {
+		FreeLibrary(hInst);
+		return hr;
+	}
+
+	if (hInst && !fFound) {
+		ExternalObject eo;
+		eo.path = fullpath;
+		eo.hInst = hInst;
+		eo.clsid = clsid;
+		s_extobjs.push_back(eo);
+	}
+
+	return hr;
+}
+
 HRESULT LoadExternalFilter(LPCWSTR path, REFCLSID clsid, IBaseFilter** ppBF)
 {
 	return LoadExternalObject(path, clsid, __uuidof(IBaseFilter), (void**)ppBF);
