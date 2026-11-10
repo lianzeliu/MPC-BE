@@ -1345,6 +1345,52 @@ HRESULT LoadExternalFilter(LPCWSTR path, REFCLSID clsid, IBaseFilter** ppBF)
 	return LoadExternalObject(path, clsid, __uuidof(IBaseFilter), (void**)ppBF);
 }
 
+static CStringW FindBundledFile(LPCWSTR subDir, LPCWSTR fileName)
+{
+	CStringW dir = GetProgramDir(); // ends with backslash
+	CStringW path;
+	if (subDir && subDir[0]) {
+		path = dir + subDir + fileName;
+		if (::PathFileExistsW(path)) {
+			return path;
+		}
+	}
+	path = dir + fileName;
+	if (::PathFileExistsW(path)) {
+		return path;
+	}
+	return CStringW();
+}
+
+CStringW GetMPCVRPath()
+{
+#ifdef _WIN64
+	return FindBundledFile(L"Filters\\", L"MpcVideoRenderer64.ax");
+#else
+	return FindBundledFile(L"Filters\\", L"MpcVideoRenderer.ax");
+#endif
+}
+
+CStringW GetMadVRPath()
+{
+#ifdef _WIN64
+	return FindBundledFile(L"MADVR\\", L"madVR64.ax");
+#else
+	return FindBundledFile(L"MADVR\\", L"madVR.ax");
+#endif
+}
+
+bool IsRendererBundled(const CLSID& clsid)
+{
+	if (clsid == CLSID_MPCVR) {
+		return !GetMPCVRPath().IsEmpty();
+	}
+	if (clsid == CLSID_madVR) {
+		return !GetMadVRPath().IsEmpty();
+	}
+	return false;
+}
+
 HRESULT LoadExternalPropertyPage(IPersist* pP, REFCLSID clsid, IPropertyPage** ppPP)
 {
 	CLSID clsid2 = GUID_NULL;

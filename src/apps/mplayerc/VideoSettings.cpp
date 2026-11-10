@@ -72,7 +72,7 @@
 void CRenderersSettings::SetDefault()
 {
 	HRESULT hr = CheckFilterCLSID(CLSID_MPCVR);
-	if (S_OK == hr) {
+	if (S_OK == hr || !GetMPCVRPath().IsEmpty()) {
 		iVideoRenderer = VIDRNDT_MPCVR;
 	} else {
 		iVideoRenderer = VIDRNDT_EVR_CP;

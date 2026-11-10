@@ -208,6 +208,11 @@ STDMETHODIMP CMPCVRAllocatorPresenter::CreateRenderer(IUnknown** ppRenderer)
 
 	HRESULT hr = m_pMPCVR.CoCreateInstance(CLSID_MPCVR, GetOwner());
 	if (FAILED(hr)) {
+		// MPC VR is not registered: try the copy bundled next to the player
+		// (Filters\MpcVideoRenderer64.ax), like the bundled LAV Filters.
+		hr = LoadExternalObject(GetMPCVRPath(), CLSID_MPCVR, __uuidof(IUnknown), (void**)&m_pMPCVR);
+	}
+	if (FAILED(hr)) {
 		return hr;
 	}
 

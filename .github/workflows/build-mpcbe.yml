@@ -1,0 +1,42 @@
+name: Build MPC-BE x64 (portable renderers)
+
+on:
+  push:
+    branches: [portable-renderers]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+    env:
+      MPCBE_MSYS: C:\MSYS
+      MPCBE_MINGW: C:\MSYS\mingw
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up MSYS MinGW-w64 GCC
+        shell: powershell
+        run: |
+          Invoke-WebRequest -Uri https://github.com/Aleksoid1978/MSYS/raw/main/MSYS_MinGW-w64_GCC_1521_x86-x64.7z -OutFile "$env:TEMP\msys.7z"
+          & 'C:\Program Files\7-Zip\7z.exe' x "$env:TEMP\msys.7z" -oC:\MSYS -y | Out-Null
+          & C:\MSYS\mingw\bin\gcc.exe --version
+          & C:\MSYS\bin\nasm.exe -v
+
+      - name: Update GCC libs
+        run: call update_gcc.bat
+        shell: cmd
+
+      - name: Build mpc-be64.exe
+        run: .\build.bat Build x64 Main
+        shell: cmd
+
+      - name: Upload mpc-be64.exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: mpc-be64
+          path: _bin\mpc-be_x64\mpc-be64.exe
+          if-no-files-found: error

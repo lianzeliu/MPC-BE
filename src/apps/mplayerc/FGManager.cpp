@@ -2900,7 +2900,7 @@ CFGManagerPlayer::CFGManagerPlayer(LPCWSTR pName, LPUNKNOWN pUnk, HWND hWnd, int
 		const UINT64 vrmerit = MERIT64_RENDERER;
 
 		 auto CheckAddRenderer = [&](const CLSID& clsidVR, const CLSID& clsidAP, const WCHAR* name) {
-			if (S_OK != CheckFilterCLSID(clsidVR)) {
+			if (S_OK != CheckFilterCLSID(clsidVR) && !IsRendererBundled(clsidVR)) {
 				CString msg_str;
 				msg_str.Format(ResStr(IDS_REND_UNAVAILABLEMSG), name, L"Enhanced Video Renderer");
 				AfxMessageBox(msg_str, MB_ICONEXCLAMATION | MB_OK);

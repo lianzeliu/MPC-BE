@@ -40,12 +40,16 @@ static HRESULT IsRendererAvailable(int VideoRendererType)
 		case VIDRNDT_EVR_CP:
 		case VIDRNDT_SYNC:
 			return CheckFilterCLSID(CLSID_EnhancedVideoRenderer);
-		case VIDRNDT_MPCVR:
-			return CheckFilterCLSID(CLSID_MPCVR);
+		case VIDRNDT_MPCVR: {
+			HRESULT hr = CheckFilterCLSID(CLSID_MPCVR);
+			return (hr == S_OK || !GetMPCVRPath().IsEmpty()) ? S_OK : hr;
+		}
 		case VIDRNDT_DXR:
 			return CheckFilterCLSID(CLSID_DXR);
-		case VIDRNDT_MADVR:
-			return CheckFilterCLSID(CLSID_madVR);
+		case VIDRNDT_MADVR: {
+			HRESULT hr = CheckFilterCLSID(CLSID_madVR);
+			return (hr == S_OK || !GetMadVRPath().IsEmpty()) ? S_OK : hr;
+		}
 		case VIDRNDT_FRANKY:
 			return CheckFilterCLSID(CLSID_FrankyRenderer);
 		default:
@@ -543,7 +547,7 @@ void CPPageVideo::OnBnClickedDefault()
 	UpdateData(FALSE);
 
 	HRESULT hr = CheckFilterCLSID(CLSID_MPCVR);
-	SelectByItemData(m_cbVideoRenderer, (S_OK == hr) ? VIDRNDT_MPCVR : VIDRNDT_EVR_CP);
+	SelectByItemData(m_cbVideoRenderer, (S_OK == hr || !GetMPCVRPath().IsEmpty()) ? VIDRNDT_MPCVR : VIDRNDT_EVR_CP);
 
 	m_cbEVROutputRange.SetCurSel(0);
 
@@ -588,7 +592,19 @@ void CPPageVideo::OnVideoRenderPropClick()
 	CComPtr<IBaseFilter> pBF;
 	CComQIPtr<ISpecifyPropertyPages> pSPP = FindFilter(clsid, AfxGetMainFrame()->m_pGB);
 	if (!pSPP) {
-		pBF.CoCreateInstance(clsid); pSPP = pBF;
+		if (FAILED(pBF.CoCreateInstance(clsid))) {
+			// Try the copy bundled next to the player (MPC VR / madVR).
+			CStringW path;
+			if (clsid == CLSID_MPCVR) {
+				path = GetMPCVRPath();
+			} else if (clsid == CLSID_madVR) {
+				path = GetMadVRPath();
+			}
+			if (!path.IsEmpty()) {
+				LoadExternalFilter(path, clsid, &pBF);
+			}
+		}
+		pSPP = pBF;
 	}
 	if (pSPP) {
 		CComPropertySheet ps(ResStr(IDS_PROPSHEET_PROPERTIES), this);
